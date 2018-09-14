@@ -84,23 +84,26 @@ class SegmentTree<T>
         int sDiff = sectionMiddle - s;
         int eDiff = e - sectionMiddle + 1;
 
+        T resS = IdentityElement;
+        T resE = IdentityElement;
+
         T res = IdentityElement;
         for (int i = 1; i <= sectionLength; i <<= 1)
         {
             if ((sDiff & i) == i)
             {
-                res = merge(res, nodes[leafS]);
+                resS = merge(resS, nodes[leafS]);
                 leafS++;
             }
             if ((eDiff & i) == i)
             {
-                res = merge(res, nodes[leafE]);
+                resE = merge(nodes[leafE], resE);
                 leafE--;
             }
             leafS >>= 1;
             leafE >>= 1;
         }
-        return res;
+        return merge(resS, resE);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
