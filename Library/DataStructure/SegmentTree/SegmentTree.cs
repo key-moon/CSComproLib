@@ -40,6 +40,7 @@ class SegmentTree<T>
     /// <summary>Updateにインデクサでアクセス</summary>
     public T this[int index]
     {
+        get { AssertIndex(index); return nodes[GetIndOfLeafNode(index)]; }
         set { Update(index, value); }
     }
 
@@ -86,8 +87,6 @@ class SegmentTree<T>
 
         T resS = IdentityElement;
         T resE = IdentityElement;
-
-        T res = IdentityElement;
         for (int i = 1; i <= sectionLength; i <<= 1)
         {
             if ((sDiff & i) == i)
