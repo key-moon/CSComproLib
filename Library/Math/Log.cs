@@ -15,6 +15,18 @@
         return Log2((uint)n);
     }
 
+    public static int Log10(uint n)
+    {
+        int tmp = (Log2(n) * 1233) >> 12;
+        if (n < Pow10Int[tmp + 1]) return tmp - 1;
+        return tmp;
+    }
+    public static int Log10(int n)
+    {
+        if (n < 0) return Log10((uint)(-n));
+        return Log10((uint)n);
+    }
+
     private static int _Log2_1(uint n)
     {
         int res = 0;
