@@ -1,4 +1,4 @@
-﻿static partial class Math
+﻿static partial class MyMath
 {
     public static int Log2(uint n)
     {
