@@ -43,6 +43,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataStructure\SegmentTree\SegmentTree.cs" />
+    <Compile Include="DataStructure\SuccinctBitVector.cs" />
+    <Compile Include="Math\const.cs" />
+    <Compile Include="Math\Log.cs" />
+    <Compile Include="Math\PopCount.cs" />
+    <Compile Include="Math\random.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
