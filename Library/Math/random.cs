@@ -1,60 +1,69 @@
 ﻿using System;
-static partial class MyMath
+static partial class RNG
 {
-    private static ulong _xorshift_x = 123456789, _xorshift_y = 362436069, _xorshift_z = (ulong)DateTime.Now.Ticks * 0xdeadface, _xorshift_w = (ulong)DateTime.Now.Ticks * 0x3141592c0ffee;
-    static sbyte RandSB()
+    private static ulong _xorshift_x = (ulong)DateTime.Now.Ticks * 0x3141592c0ffee;
+    public static bool NextBool() => (NextULong() & 1) == 1;
+    public static sbyte NextSByte()
     {
         unchecked
         {
-            return (sbyte)RandUL();
+            return (sbyte)NextULong();
         }
     }
-    static byte RandB()
+    public static sbyte NextSByte(sbyte MinValue, sbyte MaxValue) => (sbyte)(NextSByte() % (MaxValue - MinValue) + MinValue);
+    public static byte NextByte()
     {
         unchecked
         {
-            return (byte)RandUL();
+            return (byte)NextULong();
         }
     }
-    static short RandS()
+    public static byte NextByte(byte MinValue, byte MaxValue) => (byte)(NextByte() % (MaxValue - MinValue) + MinValue);
+    public static short NextShort()
     {
         unchecked
         {
-            return (short)RandUL();
+            return (short)NextULong();
         }
     }
-    static ushort RandUS()
+    public static short NextShort(short MinValue, short MaxValue) => (short)(NextShort() % (MaxValue - MinValue) + MinValue);
+    public static ushort NextUShort()
     {
         unchecked
         {
-            return (ushort)RandUL();
+            return (ushort)NextULong();
         }
     }
-    static int RandI()
+    public static ushort NextUShort(ushort MinValue, ushort MaxValue) => (ushort)(NextUShort() % (MaxValue - MinValue) + MinValue);
+    public static int NextInt()
     {
         unchecked
         {
-            return (int)RandUL();
+            return (int)NextULong();
         }
     }
-    static uint RandUI()
+    public static int NextInt(int MinValue, int MaxValue) => NextInt() % (MaxValue - MinValue) + MinValue;
+    public static uint NextUInt()
     {
         unchecked
         {
-            return (uint)RandUL();
+            return (uint)NextULong();
         }
     }
-    static long RandL()
+    public static uint NextUInt(uint MinValue, uint MaxValue) => NextUInt() % (MaxValue - MinValue) + MinValue;
+    public static long NextLong()
     {
         unchecked
         {
-            return (long)RandUL();
+            return (long)NextULong();
         }
     }
-    static ulong RandUL()
+    public static long NextLong(long MinValue, long MaxValue) => NextLong() % (MaxValue - MinValue) + MinValue;
+    public static ulong NextULong()
     {
-        ulong t = (_xorshift_x ^ (_xorshift_x << 11));
-        _xorshift_x = _xorshift_y; _xorshift_y = _xorshift_z; _xorshift_z = _xorshift_w;
-        return (_xorshift_w = (_xorshift_w ^ (_xorshift_w >> 19)) ^ (t ^ (t >> 8)));
+        _xorshift_x = _xorshift_x ^ (_xorshift_x << 7);
+        _xorshift_x = _xorshift_x ^ (_xorshift_x >> 9);
+        return _xorshift_x;
     }
+    public static ulong NextULong(ulong MinValue, ulong MaxValue) => NextULong() % (MaxValue - MinValue) + MinValue;
 }
