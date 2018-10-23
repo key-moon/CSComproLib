@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 
 // 簡潔ビットベクトル
@@ -19,38 +15,39 @@ class SuccinctBitVector
     uint[] bits;
     byte[] count;
     int[] largeCount;
+    int count0;
+    int count1;
 
-    public SuccinctBitVector(int length)
+    public SuccinctBitVector(uint[] bits) : this(bits, bits.Length * BITBLOCK_LENGTH) { }
+    public SuccinctBitVector(bool[] bits) : this(BoolsToUInts(bits), bits.Length) { }
+    private SuccinctBitVector(uint[] bits, int length)
     {
         Length = length;
-        
-        bits = new uint[(length + BITBLOCK_LENGTH - 1) / BITBLOCK_LENGTH];
-        count = new byte[bits.Length];
-        largeCount = new int[(bits.Length + LARGEBLOCK_LENGTH - 1) / LARGEBLOCK_LENGTH];
-    }
-    public SuccinctBitVector(uint[] bits)
-    {
-        Length = bits.Length * BITBLOCK_LENGTH;
         this.bits = bits;
         count = new byte[bits.Length];
-        largeCount = new int[(bits.Length + BLOCK_PER_LARGEBLOCK) / BLOCK_PER_LARGEBLOCK];
+        largeCount = new int[(bits.Length + BLOCK_PER_LARGEBLOCK - 1) / BLOCK_PER_LARGEBLOCK];
         byte sum = 0;
         for (int i = 0; i < bits.Length - 1; i++)
         {
+            var popcnt = MyMath.PopCount(bits[i]);
             if ((i + 1) % BLOCK_PER_LARGEBLOCK == 0)
             {
                 int ind = (i + 1) / BLOCK_PER_LARGEBLOCK;
-                largeCount[ind] = largeCount[ind - 1] + sum + MyMath.PopCount(bits[i]);
+                largeCount[ind] = largeCount[ind - 1] + sum + popcnt;
                 sum = 0;
             }
             else
             {
-                sum += MyMath.PopCount(bits[i]);
+                sum += popcnt;
                 count[i + 1] = sum;
             }
+            count0 += BITBLOCK_LENGTH - popcnt;
+            count1 += popcnt;
         }
+        var lastpopcnt = MyMath.PopCount(bits[bits.Length - 1]);
+        count0 += BITBLOCK_LENGTH - lastpopcnt;
+        count1 += lastpopcnt;
     }
-    public SuccinctBitVector(bool[] bits) : this(BoolsToUInts(bits)) { }
 
     public bool this[int index]
     {
@@ -73,8 +70,9 @@ class SuccinctBitVector
     }
     public int Select0(int index)
     {
-        int res = 0;
+        //if (index > count0) return Length;
 
+        int res = 0;
         int ok = 0;
         int ng = largeCount.Length;
         while (ng - ok > 1)
@@ -84,25 +82,25 @@ class SuccinctBitVector
             else ng = mid;
         }
         res += ok * LARGEBLOCK_LENGTH;
-
-        int i;
+        
+        int bitind = 0;
         int remain = index - (ok * LARGEBLOCK_LENGTH - largeCount[ok]);
         int offset = ok * BLOCK_PER_LARGEBLOCK;
         int max = Math.Min(BLOCK_PER_LARGEBLOCK, count.Length - offset);
-        for (i = 0; i < max; i++)
+        for (int i = max - 1; i >= 0; i--)
         {
-            if (remain < (i * BITBLOCK_LENGTH - count[offset + i]))
+            if ((i * BITBLOCK_LENGTH - count[offset + i]) <= remain)
             {
-                i--;
+                bitind = i;
                 break;
             }
         }
-        res += i * BITBLOCK_LENGTH;
-
-        remain = remain - (i * BITBLOCK_LENGTH - count[offset + i]);
+        res += bitind * BITBLOCK_LENGTH;
+        
+        remain = remain - (bitind * BITBLOCK_LENGTH - count[offset + bitind]);
         ok = 0;
         ng = BITBLOCK_LENGTH;
-        uint bit = bits[offset + i];
+        uint bit = bits[offset + bitind];
         while (ng - ok > 1)
         {
             int mid = (ng + ok) / 2;
@@ -114,8 +112,9 @@ class SuccinctBitVector
     }
     public int Select1(int index)
     {
-        int res = 0;
+        //if (index > count1) return Length;
 
+        int res = 0;
         int ok = 0;
         int ng = largeCount.Length;
         while (ng - ok > 1)
@@ -125,25 +124,25 @@ class SuccinctBitVector
             else ng = mid;
         }
         res += ok * LARGEBLOCK_LENGTH;
-
-        int i;
+        
+        int bitind = 0;
         int remain = index - largeCount[ok];
         int offset = ok * BLOCK_PER_LARGEBLOCK;
         int max = Math.Min(BLOCK_PER_LARGEBLOCK, count.Length - offset);
-        for (i = 0; i < max; i++)
+        for (int i = max - 1; i >= 0; i--)
         {
-            if(remain < count[offset + i])
+            if (count[offset + i] <= remain)
             {
-                i--;
+                bitind = i;
                 break;
             }
         }
-        res += i * BITBLOCK_LENGTH;
-
-        remain = remain - count[offset + i];
+        res += bitind * BITBLOCK_LENGTH;
+        
+        remain = remain - count[offset + bitind];
         ok = 0;
         ng = BITBLOCK_LENGTH;
-        uint bit = bits[offset + i];
+        uint bit = bits[offset + bitind];
         while (ng - ok > 1)
         {
             int mid = (ng + ok) / 2;
