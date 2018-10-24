@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Runtime.CompilerServices;
 
 // 簡潔ビットベクトル
 // 空間計算量 : n + n/4 + n/8
@@ -51,10 +51,13 @@ class SuccinctBitVector
 
     public bool this[int index]
     {
+        [MethodImpl(MethodImplOptions.Unmanaged & MethodImplOptions.AggressiveInlining)]
         get => Access(index);
     }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Access(int index) => (bits[index / BITBLOCK_LENGTH] & (1u << (index % BITBLOCK_LENGTH))) != 0;
     
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int Rank(int index)
     {
         index++;
@@ -70,7 +73,7 @@ class SuccinctBitVector
     }
     public int Select0(int index)
     {
-        //if (index > count0) return Length;
+        if (index >= count0) return Length;
 
         int res = 0;
         int ok = 0;
@@ -112,7 +115,7 @@ class SuccinctBitVector
     }
     public int Select1(int index)
     {
-        //if (index > count1) return Length;
+        if (index >= count1) return Length;
 
         int res = 0;
         int ok = 0;
