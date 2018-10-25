@@ -3,6 +3,22 @@
 static partial class BitOperation
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static byte PopCount(ulong n)
+    {
+        n = (n & 0x5555555555555555) + ((n >>  1) & 0x5555555555555555);
+        n = (n & 0x3333333333333333) + ((n >>  2) & 0x3333333333333333);
+        n = (n & 0x0f0f0f0f0f0f0f0f) + ((n >>  4) & 0x0f0f0f0f0f0f0f0f);
+        n = (n & 0x00ff00ff00ff00ff) + ((n >>  8) & 0x00ff00ff00ff00ff);
+        n = (n & 0x0000ffff0000ffff) + ((n >> 16) & 0x0000ffff0000ffff);
+        return (byte)((n & 0x00000000ffffffff) + ((n >> 32) & 0x00000000ffffffff));
+    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static byte PopCount(long n)
+    {
+        if (n < 0) return (byte)(PopCount((ulong)(-n)) + 1);
+        return PopCount((ulong)n);
+    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte PopCount (uint n)
     {
         n = (n & 0x55555555) + ((n >> 1) & 0x55555555);
