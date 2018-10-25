@@ -7,20 +7,20 @@ using System.Runtime.CompilerServices;
 // 　　　　　   Select O(log(n/256))
 class SuccinctBitVector
 {
-    const int BITBLOCK_LENGTH = 32;
+    const int BITBLOCK_LENGTH = 64;
     const int LARGEBLOCK_LENGTH = 256;
     const int BLOCK_PER_LARGEBLOCK = LARGEBLOCK_LENGTH / BITBLOCK_LENGTH;
     
     public int Length;
-    uint[] bits;
+    ulong[] bits;
     byte[] count;
     int[] largeCount;
     int count0;
     int count1;
 
-    public SuccinctBitVector(uint[] bits) : this(bits, bits.Length * BITBLOCK_LENGTH) { }
+    public SuccinctBitVector(ulong[] bits) : this(bits, bits.Length * BITBLOCK_LENGTH) { }
     public SuccinctBitVector(bool[] bits) : this(BoolsToUInts(bits), bits.Length) { }
-    private SuccinctBitVector(uint[] bits, int length)
+    private SuccinctBitVector(ulong[] bits, int length)
     {
         Length = length;
         this.bits = bits;
@@ -55,14 +55,14 @@ class SuccinctBitVector
         get => Access(index);
     }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Access(int index) => (bits[index / BITBLOCK_LENGTH] & (1u << (index % BITBLOCK_LENGTH))) != 0;
+    public bool Access(int index) => (bits[index / BITBLOCK_LENGTH] & (1UL << (index % BITBLOCK_LENGTH))) != 0;
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int Rank(int index)
     {
         index++;
         int bitblockind = index / BITBLOCK_LENGTH;
-        int res = largeCount[bitblockind / BLOCK_PER_LARGEBLOCK] + count[bitblockind] + BitOperation.PopCount(bits[bitblockind] & (uint)((1UL << (index % BITBLOCK_LENGTH)) - 1));
+        int res = largeCount[bitblockind / BLOCK_PER_LARGEBLOCK] + count[bitblockind] + BitOperation.PopCount(bits[bitblockind] & ((1UL << (index % BITBLOCK_LENGTH)) - 1));
         return res;
     }
 
@@ -100,17 +100,9 @@ class SuccinctBitVector
         }
         res += bitind * BITBLOCK_LENGTH;
         
+        var bit = bits[offset + bitind];
         remain = remain - (bitind * BITBLOCK_LENGTH - count[offset + bitind]);
-        ok = 0;
-        ng = BITBLOCK_LENGTH;
-        uint bit = bits[offset + bitind];
-        while (ng - ok > 1)
-        {
-            int mid = (ng + ok) / 2;
-            if ((mid - BitOperation.PopCount(bit & (uint)((1UL << mid) - 1))) <= remain) ok = mid;
-            else ng = mid;
-        }
-        res += ok;
+        res += BitOperation.Select(~bit, (ulong)remain);
         return res;
     }
     public int Select1(int index)
@@ -142,32 +134,24 @@ class SuccinctBitVector
         }
         res += bitind * BITBLOCK_LENGTH;
         
+        var bit = bits[offset + bitind];
         remain = remain - count[offset + bitind];
-        ok = 0;
-        ng = BITBLOCK_LENGTH;
-        uint bit = bits[offset + bitind];
-        while (ng - ok > 1)
-        {
-            int mid = (ng + ok) / 2;
-            if (BitOperation.PopCount(bit & (uint)((1UL << mid) - 1)) <= remain) ok = mid;
-            else ng = mid;
-        }
-        res += ok;
+        res += BitOperation.Select(bit, (ulong)remain);
         return res;
     }
 
-    public static uint[] BoolsToUInts(bool[] bits)
+    public static ulong[] BoolsToUInts(bool[] bits)
     {
-        uint[] uintbits = new uint[(bits.Length + BITBLOCK_LENGTH) / BITBLOCK_LENGTH];
-        for (int i = 0; i < uintbits.Length; i++)
+        var ulongbits = new ulong[(bits.Length + BITBLOCK_LENGTH) / BITBLOCK_LENGTH];
+        for (int i = 0; i < ulongbits.Length; i++)
         {
             int offset = i * BITBLOCK_LENGTH;
             int max = Math.Min(BITBLOCK_LENGTH, bits.Length - offset);
             for (int j = 0; j < max; j++)
             {
-                if (bits[offset + j]) uintbits[i] |= (1u << j);
+                if (bits[offset + j]) ulongbits[i] |= (1UL << j);
             }
         }
-        return uintbits;
+        return ulongbits;
     }
 }
