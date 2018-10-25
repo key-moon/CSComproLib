@@ -29,7 +29,7 @@ class SuccinctBitVector
         byte sum = 0;
         for (int i = 0; i < bits.Length - 1; i++)
         {
-            var popcnt = MyMath.PopCount(bits[i]);
+            var popcnt = BitOperation.PopCount(bits[i]);
             if ((i + 1) % BLOCK_PER_LARGEBLOCK == 0)
             {
                 int ind = (i + 1) / BLOCK_PER_LARGEBLOCK;
@@ -44,7 +44,7 @@ class SuccinctBitVector
             count0 += BITBLOCK_LENGTH - popcnt;
             count1 += popcnt;
         }
-        var lastpopcnt = MyMath.PopCount(bits[bits.Length - 1]);
+        var lastpopcnt = BitOperation.PopCount(bits[bits.Length - 1]);
         count0 += BITBLOCK_LENGTH - lastpopcnt;
         count1 += lastpopcnt;
     }
@@ -62,7 +62,7 @@ class SuccinctBitVector
     {
         index++;
         int bitblockind = index / BITBLOCK_LENGTH;
-        int res = largeCount[bitblockind / BLOCK_PER_LARGEBLOCK] + count[bitblockind] + MyMath.PopCount(bits[bitblockind] & (uint)((1UL << (index % BITBLOCK_LENGTH)) - 1));
+        int res = largeCount[bitblockind / BLOCK_PER_LARGEBLOCK] + count[bitblockind] + BitOperation.PopCount(bits[bitblockind] & (uint)((1UL << (index % BITBLOCK_LENGTH)) - 1));
         return res;
     }
 
@@ -107,7 +107,7 @@ class SuccinctBitVector
         while (ng - ok > 1)
         {
             int mid = (ng + ok) / 2;
-            if ((mid - MyMath.PopCount(bit & (uint)((1UL << mid) - 1))) <= remain) ok = mid;
+            if ((mid - BitOperation.PopCount(bit & (uint)((1UL << mid) - 1))) <= remain) ok = mid;
             else ng = mid;
         }
         res += ok;
@@ -149,7 +149,7 @@ class SuccinctBitVector
         while (ng - ok > 1)
         {
             int mid = (ng + ok) / 2;
-            if (MyMath.PopCount(bit & (uint)((1UL << mid) - 1)) <= remain) ok = mid;
+            if (BitOperation.PopCount(bit & (uint)((1UL << mid) - 1)) <= remain) ok = mid;
             else ng = mid;
         }
         res += ok;
