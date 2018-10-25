@@ -2,11 +2,12 @@
 {
     public static byte Select(ulong n, ulong rank)
     {
-        ulong a = (n & 0x55555555) + ((n >> 1) & 0x55555555);
-        ulong b = (a & 0x33333333) + ((a >> 2) & 0x33333333);
-        ulong c = (b & 0x0f0f0f0f) + ((b >> 4) & 0x0f0f0f0f);
-        ulong d = (c & 0x00ff00ff) + ((c >> 8) & 0x00ff00ff);
-        ulong t = (d & 0xff) + ((d >> 8) & 0xff);
+        ulong a = (n & 0x5555555555555555) + ((n >> 1) & 0x5555555555555555);
+        ulong b = (a & 0x3333333333333333) + ((a >> 2) & 0x3333333333333333);
+        ulong c = (b & 0x0f0f0f0f0f0f0f0f) + ((b >> 4) & 0x0f0f0f0f0f0f0f0f);
+        ulong d = (c & 0x00ff00ff00ff00ff) + ((c >> 8) & 0x00ff00ff00ff00ff);
+        
+        ulong t = (d & 0xff) + ((d >> 16) & 0xff);
         byte s = 0;
         if (rank >= t) {s += 32; rank -= t;}
         t = (d >> s) & 0xff;
