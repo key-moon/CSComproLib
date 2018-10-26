@@ -52,7 +52,10 @@ class SuccinctBitVector
     public bool this[int index]
     {
         [MethodImpl(MethodImplOptions.Unmanaged & MethodImplOptions.AggressiveInlining)]
-        get => Access(index);
+        get
+        {
+            return Access(index);
+        }
     }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Access(int index) => (bits[index / BITBLOCK_LENGTH] & (1UL << (index % BITBLOCK_LENGTH))) != 0;
@@ -203,7 +206,10 @@ class SuccinctBitVector32
     public bool this[int index]
     {
         [MethodImpl(MethodImplOptions.Unmanaged & MethodImplOptions.AggressiveInlining)]
-        get => Access(index);
+        get
+        {
+            return Access(index);
+        }
     }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Access(int index) => (bits[index / BITBLOCK_LENGTH] & (1U << (index % BITBLOCK_LENGTH))) != 0;
