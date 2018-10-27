@@ -86,6 +86,7 @@
     <Compile Include="BitOperation\Select.cs" />
     <Compile Include="DataStructure\SegmentTree\SegmentTree.cs" />
     <Compile Include="DataStructure\SuccinctBitVector.cs" />
+    <Compile Include="DataStructure\PersistentStack.cs" />
     <Compile Include="Math\const.cs" />
     <Compile Include="Math\Log.cs" />
     <Compile Include="BitOperation\PopCount.cs" />
