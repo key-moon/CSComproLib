@@ -5,12 +5,15 @@ static partial class BitOperation
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte PopCount(ulong n)
     {
-        n = (n & 0x5555555555555555) + ((n >>  1) & 0x5555555555555555);
-        n = (n & 0x3333333333333333) + ((n >>  2) & 0x3333333333333333);
-        n = (n & 0x0f0f0f0f0f0f0f0f) + ((n >>  4) & 0x0f0f0f0f0f0f0f0f);
-        n = (n & 0x00ff00ff00ff00ff) + ((n >>  8) & 0x00ff00ff00ff00ff);
-        n = (n & 0x0000ffff0000ffff) + ((n >> 16) & 0x0000ffff0000ffff);
-        return (byte)((n & 0x00000000ffffffff) + ((n >> 32) & 0x00000000ffffffff));
+        unchecked
+        {
+            n = (n & 0x5555555555555555ul) + ((n >> 1) & 0x5555555555555555ul);
+            n = (n & 0x3333333333333333ul) + ((n >> 2) & 0x3333333333333333ul);
+            n = (n & 0x0f0f0f0f0f0f0f0ful) + ((n >> 4) & 0x0f0f0f0f0f0f0f0ful);
+            n = (n & 0x00ff00ff00ff00fful) + ((n >> 8) & 0x00ff00ff00ff00fful);
+            n = (n & 0x0000ffff0000fffful) + ((n >> 16) & 0x0000ffff0000fffful);
+            return (byte)((n & 0x00000000fffffffful) + ((n >> 32) & 0x00000000fffffffful));
+        }
     }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte PopCount(long n)
@@ -21,11 +24,14 @@ static partial class BitOperation
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte PopCount (uint n)
     {
-        n = (n & 0x55555555) + ((n >> 1) & 0x55555555);
-        n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
-        n = (n & 0x0f0f0f0f) + ((n >> 4) & 0x0f0f0f0f);
-        n = (n & 0x00ff00ff) + ((n >> 8) & 0x00ff00ff);
-        return (byte)((n & 0x0000ffff) + ((n >> 16) & 0x0000ffff));
+        unchecked
+        {
+            n = (n & 0x55555555u) + ((n >> 1) & 0x55555555u);
+            n = (n & 0x33333333u) + ((n >> 2) & 0x33333333u);
+            n = (n & 0x0f0f0f0fu) + ((n >> 4) & 0x0f0f0f0fu);
+            n = (n & 0x00ff00ffu) + ((n >> 8) & 0x00ff00ffu);
+            return (byte)((n & 0x0000ffffu) + ((n >> 16) & 0x0000ffffu));
+        }
     }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte PopCount (int n)
